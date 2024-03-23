@@ -91,10 +91,12 @@ suite("Functional Tests", function () {
     chai
       .request(server)
       //   .keepOpen()
-      .get("/api/replies/test?thread_id=0")
+      .get("/api/threads/test")
+      .set("content-type", "application/json")
+      .query({ thread_id: 0 })
       .end(function (err, res) {
         assert.equal(res.status, 200);
-        assert.equal(res.body.text, 'text');
+        assert.equal(res.body.text, "text");
         done();
       });
   });
@@ -110,7 +112,11 @@ suite("Functional Tests", function () {
       .request(server)
       //   .keepOpen()
       .delete("/api/replies/test")
-      .send({delete_password: 'incorrect_password', thread_id: 0})
+      .send({
+        delete_password: "incorrect_password",
+        thread_id: 0,
+        reply_id: 0,
+      })
       .end(function (err, res) {
         assert.equal(res.status, 401);
         done();
@@ -120,15 +126,8 @@ suite("Functional Tests", function () {
     chai
       .request(server)
       //   .keepOpen()
-      .post("/api/replies/test")
-      .type("form")
-      .send({ text: "text", delete_password: "password", thread_id: 0 })
-      .end();
-    chai
-      .request(server)
-      //   .keepOpen()
       .delete("/api/replies/test")
-      .send({delete_password: 'password', thread_id: 0})
+      .send({ delete_password: "password", thread_id: 0, reply_id: 0 })
       .end(function (err, res) {
         assert.equal(res.status, 200);
         done();
@@ -139,7 +138,7 @@ suite("Functional Tests", function () {
       .request(server)
       //   .keepOpen()
       .put("/api/replies/test")
-      .send({thread_id: 0, reply_id: 0})
+      .send({ thread_id: 0, reply_id: 0 })
       .end(function (err, res) {
         assert.equal(res.status, 200);
         done();
