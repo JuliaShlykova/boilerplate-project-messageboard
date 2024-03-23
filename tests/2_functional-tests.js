@@ -91,7 +91,7 @@ suite("Functional Tests", function () {
     chai
       .request(server)
       //   .keepOpen()
-      .get("/api/threads/test")
+      .get("/api/replies/test")
       .set("content-type", "application/json")
       .query({ thread_id: 0 })
       .end(function (err, res) {

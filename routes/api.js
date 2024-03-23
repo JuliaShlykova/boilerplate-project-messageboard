@@ -28,27 +28,18 @@ module.exports = function (app) {
     })
     .get((req, res) => {
       const { board } = req.params;
-      const { thread_id } = req.query;
-      console.log("query", req.query);
-      if (thread_id) {
-        let el = db[board][thread_id];
-        res.json({
-          _id: el._id,
-          created_on: el.created_on,
-          bumped_on: el.bumped_on,
-          text: el.text,
-          replies: el.replies,
-        });
-      } else {
-        let filteredArr = db[board].map((el) => ({
-          _id: el._id,
-          created_on: el.created_on,
-          bumped_on: el.bumped_on,
-          text: el.text,
-          replies: el.replies,
-        }));
-        res.json(filteredArr);
-      }
+      let filteredArr = db[board].map((el) => ({
+        _id: el._id,
+        created_on: el.created_on,
+        bumped_on: el.bumped_on,
+        text: el.text,
+        replies: el.replies.map((reply) => ({
+          _id: reply._id,
+          text: reply.text,
+          created_on: reply.created_on,
+        })),
+      }));
+      res.json(filteredArr);
     })
     .delete((req, res) => {
       const { board } = req.params;
@@ -85,7 +76,25 @@ module.exports = function (app) {
         reported: false,
       };
       db[board][thread_id].replies.push(newReply);
-      res.json(newReply);
+      res.json(db[board][thread_id]);
+    })
+    .get((req, res) => {
+      const { board } = req.params;
+      const { thread_id } = req.query;
+      let el = db[board][thread_id];
+      let filteredThread = {
+        _id: el._id,
+        created_on: el.created_on,
+        bumped_on: el.bumped_on,
+        text: el.text,
+        replies: el.replies.map((reply) => ({
+          _id: reply._id,
+          text: reply.text,
+          created_on: reply.created_on,
+        })),
+      };
+      console.log(filteredThread);
+      res.json(filteredThread);
     })
     .put((req, res) => {
       const { board } = req.params;
