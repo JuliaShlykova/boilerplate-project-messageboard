@@ -91,9 +91,55 @@ suite("Functional Tests", function () {
     chai
       .request(server)
       //   .keepOpen()
+      .get("/api/replies/test?thread_id=0")
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        assert.equal(res.body.text, 'text');
+        done();
+      });
+  });
+  test("Deleting a reply with the incorrect password: DELETE request to /api/replies/{board} with an invalid delete_password", function (done) {
+    chai
+      .request(server)
+      //   .keepOpen()
       .post("/api/replies/test")
-      .send({ thread_id: 0, delete_password: "password", text: "hello" })
-      .set("content-type", "application/json")
+      .type("form")
+      .send({ text: "text", delete_password: "password", thread_id: 0 })
+      .end();
+    chai
+      .request(server)
+      //   .keepOpen()
+      .delete("/api/replies/test")
+      .send({delete_password: 'incorrect_password', thread_id: 0})
+      .end(function (err, res) {
+        assert.equal(res.status, 401);
+        done();
+      });
+  });
+  test("Deleting a reply with the correct password: DELETE request to /api/replies/{board} with a valid delete_password", function (done) {
+    chai
+      .request(server)
+      //   .keepOpen()
+      .post("/api/replies/test")
+      .type("form")
+      .send({ text: "text", delete_password: "password", thread_id: 0 })
+      .end();
+    chai
+      .request(server)
+      //   .keepOpen()
+      .delete("/api/replies/test")
+      .send({delete_password: 'password', thread_id: 0})
+      .end(function (err, res) {
+        assert.equal(res.status, 200);
+        done();
+      });
+  });
+  test("Reporting a reply: PUT request to /api/replies/{board}", function (done) {
+    chai
+      .request(server)
+      //   .keepOpen()
+      .put("/api/replies/test")
+      .send({thread_id: 0, reply_id: 0})
       .end(function (err, res) {
         assert.equal(res.status, 200);
         done();
